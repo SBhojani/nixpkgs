@@ -137,15 +137,6 @@ test_idempotency_realpath() {
             continue
         fi
 
-        if ! doubleResult=$(normalise "$result"); then
-            die "For valid subpath \"$str\", the normalisation \"$result\" was not a valid subpath"
-        fi
-
-        # Checking idempotency law
-        if [[ "$doubleResult" != "$result" ]]; then
-            die "For valid subpath \"$str\", normalising it once gives \"$result\" but normalising it twice gives a different result: \"$doubleResult\""
-        fi
-
         # Check the law that it doesn't change the result of a realpath
         mkdir -p -- "$str" "$result"
         real_orig=$(realpath -- "$str")

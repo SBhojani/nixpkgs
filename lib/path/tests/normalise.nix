@@ -20,8 +20,9 @@ let
   ) (builtins.attrNames (builtins.readDir dir));
 
   inherit (lib.path.subpath) normalise;
+  inherit (lib.asserts) assertMsg;
 
-  tryNormaliseTwice = str:
+  checkAndReturn = str:
     let
       tryOnce = builtins.tryEval (normalise str);
       once = {
@@ -34,9 +35,14 @@ let
         name = tryOnce.value;
         value = if tryTwice.success then tryTwice.value else "";
       };
-    in [ once ]
-      # Only try normalising it twice if the first normalisation succeeded
-      ++ lib.optional tryOnce.success twice;
+    in
+      assert assertMsg
+        (tryOnce.success -> tryTwice.success)
+        "For valid subpath \"${str}\", the normalisation \"${tryOnce.value}\" was not a valid subpath";
+      assert assertMsg
+        (tryOnce.success -> tryOnce.value == tryTwice.value)
+        "For valid subpath \"${str}\", normalising it once gives \"${tryOnce.value}\" but normalising it twice gives a different result: \"${tryTwice.value}\"";
+      once;
 
 in builtins.listToAttrs
-  (builtins.concatMap tryNormaliseTwice strings)
+  (map checkAndReturn strings)
