@@ -35,6 +35,9 @@ let
         name = tryOnce.value;
         value = if tryTwice.success then tryTwice.value else "";
       };
+
+      absConcatOrig = /. + ("/" + str);
+      absConcatNormalised = /. + ("/" + tryOnce.value);
     in
       assert assertMsg
         (tryOnce.success -> tryTwice.success)
@@ -42,6 +45,9 @@ let
       assert assertMsg
         (tryOnce.success -> tryOnce.value == tryTwice.value)
         "For valid subpath \"${str}\", normalising it once gives \"${tryOnce.value}\" but normalising it twice gives a different result: \"${tryTwice.value}\"";
+      assert assertMsg
+        (tryOnce.success -> absConcatOrig == absConcatNormalised)
+        "For valid subpath \"${str}\", appending to an absolute Nix path value gives \"${absConcatOrig}\", but appending the normalised result \"${tryOnce.value}\" gives a different value \"${absConcatNormalised}\"";
       once;
 
 in builtins.listToAttrs

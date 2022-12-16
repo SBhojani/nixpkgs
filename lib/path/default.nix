@@ -121,6 +121,9 @@ in /* No rec! Add dependencies on this file at the top. */ {
 
         subpath.normalise p != subpath.normalise q -> $(realpath ${p}) != $(realpath ${q})
 
+  - Doesn't change the result when appended to a Nix path value
+        base + ("/" + p) == base + ("/" + subpath.normalise p)
+
   - Doesn't change the path according to `realpath`:
 
         $(realpath ${p}) == $(realpath ${subpath.normalise p})
