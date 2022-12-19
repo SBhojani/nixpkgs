@@ -6,6 +6,71 @@ let
   inherit (lib.path) subpath;
 
   cases = lib.runTests {
+    testSubpathValidExample1 = {
+      expr = subpath.valid null;
+      expected = false;
+    };
+    testSubpathValidExample2 = {
+      expr = subpath.valid "";
+      expected = false;
+    };
+    testSubpathValidExample3 = {
+      expr = subpath.valid "/foo";
+      expected = false;
+    };
+    testSubpathValidExample4 = {
+      expr = subpath.valid "../foo";
+      expected = false;
+    };
+    testSubpathValidExample5 = {
+      expr = subpath.valid "foo/bar";
+      expected = true;
+    };
+    testSubpathValidExample6 = {
+      expr = subpath.valid "./foo//bar/";
+      expected = true;
+    };
+    testSubpathValidTwoDotsEnd = {
+      expr = subpath.valid "foo/..";
+      expected = false;
+    };
+    testSubpathValidTwoDotsMiddle = {
+      expr = subpath.valid "foo/../bar";
+      expected = false;
+    };
+    testSubpathValidTwoDotsPrefix = {
+      expr = subpath.valid "..foo";
+      expected = true;
+    };
+    testSubpathValidTwoDotsSuffix = {
+      expr = subpath.valid "foo..";
+      expected = true;
+    };
+    testSubpathValidTwoDotsPrefixComponent = {
+      expr = subpath.valid "foo/..bar/baz";
+      expected = true;
+    };
+    testSubpathValidTwoDotsSuffixComponent = {
+      expr = subpath.valid "foo/bar../baz";
+      expected = true;
+    };
+    testSubpathValidThreeDots = {
+      expr = subpath.valid "...";
+      expected = true;
+    };
+    testSubpathValidFourDots = {
+      expr = subpath.valid "....";
+      expected = true;
+    };
+    testSubpathValidThreeDotsComponent = {
+      expr = subpath.valid "foo/.../bar";
+      expected = true;
+    };
+    testSubpathValidFourDotsComponent = {
+      expr = subpath.valid "foo/..../bar";
+      expected = true;
+    };
+
     testSubpathNormaliseExample1 = {
       expr = subpath.normalise "foo//bar";
       expected = "./foo/bar";

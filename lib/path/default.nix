@@ -21,22 +21,22 @@ let
     substring
     ;
 
-  # Returns true if the value is a valid subpath string, otherwise throws an error
-  isValidSubpath = value: errorPrefix:
-    if ! isString value then throw ''
-      ${errorPrefix}:
-          The given value is of type ${builtins.typeOf value}, but a string was expected''
-    else if value == "" then throw ''
-      ${errorPrefix}:
-          The given string is empty''
-    else if substring 0 1 value == "/" then throw ''
-      ${errorPrefix}:
-          The given string "${value}" starts with a `/`, representing an absolute path''
+  inherit (lib.asserts)
+    assertMsg
+    ;
+
+  # Returns the reason why a subpath is invalid, or `null` if it's valid
+  subpathInvalidReason = value:
+    if ! isString value then
+      "The given value is of type ${builtins.typeOf value}, but a string was expected"
+    else if value == "" then
+      "The given string is empty"
+    else if substring 0 1 value == "/" then
+      "The given string \"${value}\" starts with a `/`, representing an absolute path"
     # We don't support ".." components, see ./path.md#parent-directory
-    else if match "(.*/)?\\.\\.(/.*)?" value != null then throw ''
-      ${errorPrefix}:
-          The given string "${value}" contains a `..` component, which is not allowed in subpaths''
-    else true;
+    else if match "(.*/)?\\.\\.(/.*)?" value != null then
+      "The given string \"${value}\" contains a `..` component, which is not allowed in subpaths"
+    else null;
 
   # Splits and normalises a relative path string into its components.
   # Errors for ".." components and doesn't include "." components
@@ -94,17 +94,57 @@ let
 
 in /* No rec! Add dependencies on this file at the top. */ {
 
-  /* Normalise a subpath.
+
+  /* Whether a value is a valid subpath string.
+
+  - The value is a string
+
+  - The string is not empty
+
+  - The string doesn't start with a `/`
+
+  - The string doesn't contain any `..` path components
+
+  Type:
+    subpath.valid :: String -> Bool
+
+  Example:
+    # Not a string
+    subpath.valid null
+    => false
+
+    # Empty string
+    subpath.valid ""
+    => false
+
+    # Absolute path
+    subpath.valid "/foo"
+    => false
+
+    # Contains a `..` path component
+    subpath.valid "../foo"
+    => false
+
+    # Valid subpath
+    subpath.valid "foo/bar"
+    => true
+
+    # Doesn't need to be normalised
+    subpath.valid "./foo//bar/"
+    => true
+  */
+  subpath.valid = value:
+    subpathInvalidReason value == null;
+
+
+  /* Normalise a subpath. Errors if the subpath isn't valid, see
+  `lib.path.subpath.valid`
 
   - Limit repeating `/` to a single one
 
   - Remove redundant `.` components
 
-  - Error on empty strings
-
   - Remove trailing `/` and `/.`
-
-  - Error on `..` path components
 
   - Add leading `./`
 
@@ -127,6 +167,9 @@ in /* No rec! Add dependencies on this file at the top. */ {
   - Doesn't change the path according to `realpath`:
 
         $(realpath ${p}) == $(realpath ${subpath.normalise p})
+
+  - Only errors on invalid subpaths
+        builtins.tryEval (subpath.normalise p)).success == subpath.valid p
 
   Example:
     # limit repeating `/` to a single one
@@ -166,8 +209,8 @@ in /* No rec! Add dependencies on this file at the top. */ {
     => <error>
   */
   subpath.normalise = path:
-    assert isValidSubpath path
-      "lib.path.subpath.normalise: Argument is not a valid subpath string";
+    assert assertMsg (subpathInvalidReason path == null)
+      "lib.path.subpath.normalise: Argument is not a valid subpath string: ${subpathInvalidReason path}";
     joinRelPath (splitRelPath path);
 
 }

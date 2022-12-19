@@ -74,7 +74,7 @@ fi
 nix-instantiate --eval --strict --json \
     --argstr libpath "$TEST_LIB" \
     --argstr dir "$tmp/strings" \
-    "$SCRIPT_DIR"/normalise.nix \
+    "$SCRIPT_DIR"/prop.nix \
     >"$tmp/result.json"
 
 # Uses some jq magic to turn the resulting attribute set into an associative
@@ -98,7 +98,7 @@ normalise() {
     fi
 
     normalised=${normalised_result[$str]}
-    # An empty string indicates failure, this is encoded in ./normalise.nix
+    # An empty string indicates failure, this is encoded in ./prop.nix
     if [[ -n "$normalised" ]]; then
         if [[ -n "$valid" ]]; then
             echo "$normalised"
