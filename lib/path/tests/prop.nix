@@ -23,22 +23,12 @@ let
   inherit (lib.path.subpath) normalise valid;
   inherit (lib.asserts) assertMsg;
 
-  checkAndReturn = str:
+  normaliseAndCheck = str:
     let
-
       originalValid = valid str;
-      tryOnce = builtins.tryEval (normalise str);
-      once = {
-        name = str;
-        value = if tryOnce.success then tryOnce.value else "";
-      };
 
-      onceValid = valid tryOnce.value;
+      tryOnce = builtins.tryEval (normalise str);
       tryTwice = builtins.tryEval (normalise tryOnce.value);
-      twice = {
-        name = tryOnce.value;
-        value = if tryTwice.success then tryTwice.value else "";
-      };
 
       absConcatOrig = /. + ("/" + str);
       absConcatNormalised = /. + ("/" + tryOnce.value);
@@ -64,7 +54,7 @@ let
         (originalValid -> absConcatOrig == absConcatNormalised)
         "For valid subpath \"${str}\", appending to an absolute Nix path value gives \"${absConcatOrig}\", but appending the normalised result \"${tryOnce.value}\" gives a different value \"${absConcatNormalised}\"";
 
-      once;
+      # Return an empty string when failed
+      if tryOnce.success then tryOnce.value else "";
 
-in builtins.listToAttrs
-  (map checkAndReturn strings)
+in lib.genAttrs strings normaliseAndCheck
