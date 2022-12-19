@@ -106,39 +106,39 @@ in /* No rec! Add dependencies on this file at the top. */ {
   - The string doesn't contain any `..` path components
 
   Type:
-    subpath.valid :: String -> Bool
+    subpath.isValid :: String -> Bool
 
   Example:
     # Not a string
-    subpath.valid null
+    subpath.isValid null
     => false
 
     # Empty string
-    subpath.valid ""
+    subpath.isValid ""
     => false
 
     # Absolute path
-    subpath.valid "/foo"
+    subpath.isValid "/foo"
     => false
 
     # Contains a `..` path component
-    subpath.valid "../foo"
+    subpath.isValid "../foo"
     => false
 
     # Valid subpath
-    subpath.valid "foo/bar"
+    subpath.isValid "foo/bar"
     => true
 
     # Doesn't need to be normalised
-    subpath.valid "./foo//bar/"
+    subpath.isValid "./foo//bar/"
     => true
   */
-  subpath.valid = value:
+  subpath.isValid = value:
     subpathInvalidReason value == null;
 
 
   /* Normalise a subpath. Errors if the subpath isn't valid, see
-  `lib.path.subpath.valid`
+  `lib.path.subpath.isValid`
 
   - Limit repeating `/` to a single one
 
@@ -169,7 +169,7 @@ in /* No rec! Add dependencies on this file at the top. */ {
         $(realpath ${p}) == $(realpath ${subpath.normalise p})
 
   - Only errors on invalid subpaths
-        builtins.tryEval (subpath.normalise p)).success == subpath.valid p
+        builtins.tryEval (subpath.normalise p)).success == subpath.isValid p
 
   Example:
     # limit repeating `/` to a single one

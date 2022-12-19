@@ -20,12 +20,12 @@ let
     builtins.readFile (dir + "/${name}")
   ) (builtins.attrNames (builtins.readDir dir));
 
-  inherit (lib.path.subpath) normalise valid;
+  inherit (lib.path.subpath) normalise isValid;
   inherit (lib.asserts) assertMsg;
 
   normaliseAndCheck = str:
     let
-      originalValid = valid str;
+      originalValid = isValid str;
 
       tryOnce = builtins.tryEval (normalise str);
       tryTwice = builtins.tryEval (normalise tryOnce.value);
