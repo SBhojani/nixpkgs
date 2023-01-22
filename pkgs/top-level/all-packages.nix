@@ -36538,6 +36538,8 @@ with pkgs;
 
   apt = callPackage ../tools/package-management/apt { };
 
+  apx = callPackage ../tools/package-management/apx { };
+
   dpkg = callPackage ../tools/package-management/dpkg { };
 
   dumb = callPackage ../misc/dumb { };
