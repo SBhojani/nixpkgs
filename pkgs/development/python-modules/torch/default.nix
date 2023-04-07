@@ -143,7 +143,13 @@ in buildPythonPackage rec {
     hash = "sha256-8378BVOBFCRYRG1+yIYFSPKmb1rFOLgR+8pNZKt9NfI=";
   };
 
-  patches = lib.optionals (stdenv.isDarwin && stdenv.isx86_64) [
+  patches = [
+    (fetchpatch {
+      name = "CVE-2022-45907.patch";
+      url = "https://github.com/pytorch/pytorch/commit/74a9ca993bd79f8131829e9c946657fa9a1d05ef.patch";
+      sha256 = "sha256-cnZBu7rcbCJJ/o8de1jGsquoeBAFg98PQNgSeeSehCU=";
+    })
+  ] ++ lib.optionals (stdenv.isDarwin && stdenv.isx86_64) [
     # pthreadpool added support for Grand Central Dispatch in April
     # 2020. However, this relies on functionality (DISPATCH_APPLY_AUTO)
     # that is available starting with macOS 10.13. However, our current
@@ -226,7 +232,7 @@ in buildPythonPackage rec {
   ] ++ lib.optionals cudaSupport [ cudatoolkit_joined ];
 
   buildInputs = [ blas blas.provider pybind11 ]
-    ++ [ linuxHeaders_5_19 ] # TMP: avoid "flexible array member" errors for now
+    ++ lib.optionals stdenv.isLinux [ linuxHeaders_5_19 ] # TMP: avoid "flexible array member" errors for now
     ++ lib.optionals cudaSupport [ cudnn magma nccl ]
     ++ lib.optionals stdenv.isLinux [ numactl ]
     ++ lib.optionals stdenv.isDarwin [ CoreServices libobjc ];

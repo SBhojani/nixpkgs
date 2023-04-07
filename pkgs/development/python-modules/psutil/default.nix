@@ -52,6 +52,8 @@ buildPythonPackage rec {
     "disk_io_counters"
     "sensors_battery"
     "user"
+  ] ++ lib.optionals stdenv.isLinux [
+    "test_disk_partitions" # problematic on Hydra's Linux builders, apparently
   ];
 
   pythonImportsCheck = [

@@ -890,18 +890,18 @@ self: with self; {
   }) {};
 
   # THIS IS A GENERATED FILE.  DO NOT EDIT!
-  libX11 = callPackage ({ stdenv, pkg-config, fetchurl, xorgproto, libxcb, xtrans }: stdenv.mkDerivation {
+  libX11 = callPackage ({ stdenv, pkg-config, fetchurl, xorgproto, libpthreadstubs, libxcb, xtrans }: stdenv.mkDerivation {
     pname = "libX11";
-    version = "1.8.1";
+    version = "1.8.4";
     builder = ./builder.sh;
     src = fetchurl {
-      url = "mirror://xorg/individual/lib/libX11-1.8.1.tar.xz";
-      sha256 = "1xyry8i7zqmlkvpbyyqwi18rrdw6ycczlvfp63rh2570pfhimi0v";
+      url = "mirror://xorg/individual/lib/libX11-1.8.4.tar.xz";
+      sha256 = "sha256-yaKHpa76mATOPPr89Rb+lu0/fo5FwOLuWehMhnV99Rg=";
     };
     hardeningDisable = [ "bindnow" "relro" ];
     strictDeps = true;
     nativeBuildInputs = [ pkg-config ];
-    buildInputs = [ xorgproto libxcb xtrans ];
+    buildInputs = [ xorgproto libpthreadstubs libxcb xtrans ];
     meta.platforms = lib.platforms.unix;
   }) {};
 
@@ -1180,11 +1180,11 @@ self: with self; {
   # THIS IS A GENERATED FILE.  DO NOT EDIT!
   libXpm = callPackage ({ stdenv, pkg-config, fetchurl, libX11, libXext, xorgproto, libXt, gettext }: stdenv.mkDerivation {
     pname = "libXpm";
-    version = "3.5.13";
+    version = "3.5.15";
     builder = ./builder.sh;
     src = fetchurl {
-      url = "mirror://xorg/individual/lib/libXpm-3.5.13.tar.bz2";
-      sha256 = "09dc6nwlb2122h02vl64k9x56mxnyqz2gwpga0abfv4bb1bxmlcw";
+      url = "mirror://xorg/individual/lib/libXpm-3.5.15.tar.xz";
+      sha256 = "1hfivygzrzpq81vg9z2l46pd5nrzm326k6z3cfw6syiibin91fv0";
     };
     hardeningDisable = [ "bindnow" "relro" ];
     strictDeps = true;

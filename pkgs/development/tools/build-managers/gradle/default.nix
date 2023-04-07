@@ -127,16 +127,16 @@ rec {
   # https://docs.gradle.org/current/userguide/compatibility.html
 
   gradle_7 = gen {
-    version = "7.5";
-    nativeVersion = "0.22-milestone-23";
-    sha256 = "1hjifd98dif0qy6vkqp56v9z7id5cf2bfkdd71ld8nsqqlig51yb";
+    version = "7.6.1";
+    nativeVersion = "0.22-milestone-24";
+    sha256 = "11qz1xjfihnlvsblqqnd49kmvjq86pzqcylj6k1zdvxl4dd60iv1";
     defaultJava = jdk17;
   };
 
   gradle_6 = gen {
-    version = "6.9.2";
+    version = "6.9.4";
     nativeVersion = "0.22-milestone-20";
-    sha256 = "13qyk3f6namw27ynh6nxljxpk9r3l12vxl3f0qpglprdf3c6ydcb";
+    sha256 = "16iqh4bn7ndch51h2lgkdqyyhnd91fdfjx55fa3z3scdacl0491y";
     defaultJava = jdk11;
   };
 

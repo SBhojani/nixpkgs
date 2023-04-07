@@ -214,7 +214,8 @@ in {
   fluidd = handleTest ./fluidd.nix {};
   fontconfig-default-fonts = handleTest ./fontconfig-default-fonts.nix {};
   freeswitch = handleTest ./freeswitch.nix {};
-  freshrss = handleTest ./freshrss.nix {};
+  freshrss-sqlite = handleTest ./freshrss-sqlite.nix {};
+  freshrss-pgsql = handleTest ./freshrss-pgsql.nix {};
   frr = handleTest ./frr.nix {};
   fsck = handleTest ./fsck.nix {};
   ft2-clone = handleTest ./ft2-clone.nix {};
@@ -230,6 +231,7 @@ in {
   gitolite-fcgiwrap = handleTest ./gitolite-fcgiwrap.nix {};
   glusterfs = handleTest ./glusterfs.nix {};
   gnome = handleTest ./gnome.nix {};
+  gnome-flashback = handleTest ./gnome-flashback.nix {};
   gnome-xorg = handleTest ./gnome-xorg.nix {};
   go-neb = handleTest ./go-neb.nix {};
   gobgpd = handleTest ./gobgpd.nix {};
@@ -374,6 +376,7 @@ in {
   memcached = handleTest ./memcached.nix {};
   merecat = handleTest ./merecat.nix {};
   metabase = handleTest ./metabase.nix {};
+  mindustry = handleTest ./mindustry.nix {};
   minecraft = handleTest ./minecraft.nix {};
   minecraft-server = handleTest ./minecraft-server.nix {};
   minidlna = handleTest ./minidlna.nix {};
@@ -611,6 +614,7 @@ in {
   systemd-confinement = handleTest ./systemd-confinement.nix {};
   systemd-coredump = handleTest ./systemd-coredump.nix {};
   systemd-cryptenroll = handleTest ./systemd-cryptenroll.nix {};
+  systemd-credentials-tpm2 = handleTest ./systemd-credentials-tpm2.nix {};
   systemd-escaping = handleTest ./systemd-escaping.nix {};
   systemd-initrd-btrfs-raid = handleTest ./systemd-initrd-btrfs-raid.nix {};
   systemd-initrd-luks-fido2 = handleTest ./systemd-initrd-luks-fido2.nix {};
@@ -691,7 +695,9 @@ in {
   virtualbox = handleTestOn ["x86_64-linux"] ./virtualbox.nix {};
   vscodium = discoverTests (import ./vscodium.nix);
   vsftpd = handleTest ./vsftpd.nix {};
+  warzone2100 = handleTest ./warzone2100.nix {};
   wasabibackend = handleTest ./wasabibackend.nix {};
+  webhook = runTest ./webhook.nix;
   wiki-js = handleTest ./wiki-js.nix {};
   wine = handleTest ./wine.nix {};
   wireguard = handleTest ./wireguard {};

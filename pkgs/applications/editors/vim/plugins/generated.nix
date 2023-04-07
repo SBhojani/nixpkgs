@@ -833,6 +833,18 @@ final: prev:
     meta.homepage = "https://github.com/chriskempson/base16-vim/";
   };
 
+  bat-vim = buildVimPluginFrom2Nix {
+    pname = "bat.vim";
+    version = "2022-11-14";
+    src = fetchFromGitHub {
+      owner = "jamespwilliams";
+      repo = "bat.vim";
+      rev = "cc038af97410bfc8da2e29f7eefa51f565346993";
+      sha256 = "17f9vwy3qfyl553hddah5zbj8gwww772frlvw51zskf9phdg17la";
+    };
+    meta.homepage = "https://github.com/jamespwilliams/bat.vim/";
+  };
+
   bats-vim = buildVimPluginFrom2Nix {
     pname = "bats.vim";
     version = "2013-07-03";
@@ -3274,6 +3286,18 @@ final: prev:
     meta.homepage = "https://github.com/ellisonleao/glow.nvim/";
   };
 
+  go-nvim = buildVimPluginFrom2Nix {
+    pname = "go.nvim";
+    version = "2023-02-19";
+    src = fetchFromGitHub {
+      owner = "ray-x";
+      repo = "go.nvim";
+      rev = "c11b8b50f3f4eeef7f7a8f07f697fd67794fd2ac";
+      sha256 = "12r0j62d76m2vh88wv4phc5s2r43scx3j8f814slnyigprdprs9k";
+    };
+    meta.homepage = "https://github.com/ray-x/go.nvim/";
+  };
+
   golden-ratio = buildVimPluginFrom2Nix {
     pname = "golden-ratio";
     version = "2022-06-28";
@@ -3582,6 +3606,18 @@ final: prev:
       sha256 = "0gvr9fwbc22m2rfwz3ficlrk5yk0q4zaaplma4l5zarrxswv9csb";
     };
     meta.homepage = "https://github.com/rktjmp/hotpot.nvim/";
+  };
+
+  html5-vim = buildVimPluginFrom2Nix {
+    pname = "html5.vim";
+    version = "2020-08-22";
+    src = fetchFromGitHub {
+      owner = "othree";
+      repo = "html5.vim";
+      rev = "7c9f6f38ce4f9d35db7eeedb764035b6b63922c6";
+      sha256 = "1hgbvdpmn3yffk5ahz7hz36a7f5zjc1k3pan5ybgncmdq9f4rzq6";
+    };
+    meta.homepage = "https://github.com/othree/html5.vim/";
   };
 
   hydra-nvim = buildVimPluginFrom2Nix {
@@ -7188,6 +7224,18 @@ final: prev:
     meta.homepage = "https://github.com/norcalli/snippets.nvim/";
   };
 
+  solarized-nvim = buildVimPluginFrom2Nix {
+    pname = "solarized.nvim";
+    version = "2022-12-02";
+    src = fetchFromGitHub {
+      owner = "shaunsingh";
+      repo = "solarized.nvim";
+      rev = "36615f1e4d16b87def801a75132f4aab5944e9fc";
+      sha256 = "1nn12zpsgiq9idsa93s04m8l2mpb2aq7f7n11cs2yhv2kbb9krlf";
+    };
+    meta.homepage = "https://github.com/shaunsingh/solarized.nvim/";
+  };
+
   sonokai = buildVimPluginFrom2Nix {
     pname = "sonokai";
     version = "2022-11-13";
@@ -8331,6 +8379,18 @@ final: prev:
       sha256 = "0zgycqvr1z88mjh1xfyvmr00nriwfxk7imvcfqskh9l0wy6z0m52";
     };
     meta.homepage = "https://github.com/chrisbra/unicode.vim/";
+  };
+
+  unison = buildVimPluginFrom2Nix {
+    pname = "unison";
+    version = "2023-02-03";
+    src = fetchFromGitHub {
+      owner = "unisonweb";
+      repo = "unison";
+      rev = "59acc0cbe429492a99bfebf2b783fc2fa3967f75";
+      sha256 = "1nrpxprq1f2pp269nrx18avv7ghngqlr7rjahib91rgkvhw6k1x7";
+    };
+    meta.homepage = "https://github.com/unisonweb/unison/";
   };
 
   unite-vim = buildVimPluginFrom2Nix {
@@ -12751,6 +12811,18 @@ final: prev:
       sha256 = "1ig8qacavr15i6z7whlkf2ivw5smnqsw3jwhh4dg5q6037k1hjh1";
     };
     meta.homepage = "https://github.com/posva/vim-vue/";
+  };
+
+  vim-vue-plugin = buildVimPluginFrom2Nix {
+    pname = "vim-vue-plugin";
+    version = "2023-02-02";
+    src = fetchFromGitHub {
+      owner = "leafOfTree";
+      repo = "vim-vue-plugin";
+      rev = "58ac69b2c8a98a9bd2a95fbaa7b5f0fe806bad0f";
+      sha256 = "0x8a66r1wlyashyqxmdpz3wnqhgfmscs42m2r82g5ic6a7n6f36l";
+    };
+    meta.homepage = "https://github.com/leafOfTree/vim-vue-plugin/";
   };
 
   vim-wakatime = buildVimPluginFrom2Nix {

@@ -212,6 +212,21 @@ runTests {
     expected = [ "1" "2" "3" ];
   };
 
+  testPadVersionLess = {
+    expr = versions.pad 3 "1.2";
+    expected = "1.2.0";
+  };
+
+  testPadVersionLessExtra = {
+    expr = versions.pad 3 "1.3-rc1";
+    expected = "1.3.0-rc1";
+  };
+
+  testPadVersionMore = {
+    expr = versions.pad 3 "1.2.3.4";
+    expected = "1.2.3";
+  };
+
   testIsStorePath =  {
     expr =
       let goodPath =
@@ -339,6 +354,8 @@ runTests {
     (0 == toInt " 0")
     (0 == toInt "0 ")
     (0 == toInt " 0 ")
+    (-1 == toInt "-1")
+    (-1 == toInt " -1 ")
   ];
 
   testToIntFails = testAllTrue [
@@ -383,6 +400,8 @@ runTests {
     (0 == toIntBase10 " 000000")
     (0 == toIntBase10 "000000 ")
     (0 == toIntBase10 " 000000 ")
+    (-1 == toIntBase10 "-1")
+    (-1 == toIntBase10 " -1 ")
   ];
 
   testToIntBase10Fails = testAllTrue [

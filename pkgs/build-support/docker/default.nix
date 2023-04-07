@@ -228,6 +228,15 @@ rec {
           mount /dev/${vmTools.hd} disk
           cd disk
 
+          function dedup() {
+            declare -A seen
+            while read ln; do
+              if [[ -z "''${seen["$ln"]:-}" ]]; then
+                echo "$ln"; seen["$ln"]=1
+              fi
+            done
+          }
+
           if [[ -n "$fromImage" ]]; then
             echo "Unpacking base image..."
             mkdir image
@@ -244,7 +253,8 @@ rec {
               parentID="$(cat "image/manifest.json" | jq -r '.[0].Config | rtrimstr(".json")')"
             fi
 
-            cat ./image/manifest.json  | jq -r '.[0].Layers | .[]' > layer-list
+            # In case of repeated layers, unpack only the last occurrence of each
+            cat ./image/manifest.json  | jq -r '.[0].Layers | .[]' | tac | dedup | tac > layer-list
           else
             touch layer-list
           fi
@@ -485,7 +495,7 @@ rec {
         inherit (stream) imageName;
         passthru = { inherit (stream) imageTag; };
         nativeBuildInputs = [ pigz ];
-      } "${stream} | pigz -nT > $out";
+      } "${stream} | pigz -nTR > $out";
 
   # 1. extract the base image
   # 2. create the layer
@@ -733,7 +743,7 @@ rec {
         chmod -R a-w image
 
         echo "Cooking the image..."
-        tar -C image --hard-dereference --sort=name --mtime="@$SOURCE_DATE_EPOCH" --owner=0 --group=0 --xform s:'^./':: -c . | pigz -nT > $out
+        tar -C image --hard-dereference --sort=name --mtime="@$SOURCE_DATE_EPOCH" --owner=0 --group=0 --xform s:'^./':: -c . | pigz -nTR > $out
 
         echo "Finished."
       '';
@@ -773,7 +783,7 @@ rec {
     mv repositories image/repositories
     mv manifest.json image/manifest.json
     # Create tarball and gzip
-    tar -C image --hard-dereference --sort=name --mtime="@$SOURCE_DATE_EPOCH" --owner=0 --group=0 --xform s:'^./':: -c . | pigz -nT > $out
+    tar -C image --hard-dereference --sort=name --mtime="@$SOURCE_DATE_EPOCH" --owner=0 --group=0 --xform s:'^./':: -c . | pigz -nTR > $out
   '';
 
 

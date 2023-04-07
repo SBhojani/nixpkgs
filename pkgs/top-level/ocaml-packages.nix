@@ -328,7 +328,11 @@ let
 
     domain-name = callPackage ../development/ocaml-modules/domain-name { };
 
+    domainslib = callPackage ../development/ocaml-modules/domainslib { };
+
     dose3 = callPackage ../development/ocaml-modules/dose3 { };
+
+    dscheck = callPackage ../development/ocaml-modules/dscheck { };
 
     dssi = callPackage ../development/ocaml-modules/dssi { };
 
@@ -735,6 +739,8 @@ let
 
     lo = callPackage ../development/ocaml-modules/lo { };
 
+    lockfree = callPackage ../development/ocaml-modules/lockfree { };
+
     logs = callPackage ../development/ocaml-modules/logs { };
 
     lru = callPackage ../development/ocaml-modules/lru { };
@@ -1113,6 +1119,8 @@ let
     opus = callPackage ../development/ocaml-modules/opus { };
 
     ordering = callPackage ../development/ocaml-modules/ordering { };
+
+    oseq = callPackage ../development/ocaml-modules/oseq { };
 
     otfm = callPackage ../development/ocaml-modules/otfm { };
 
@@ -1570,7 +1578,7 @@ let
     if lib.versionOlder "4.10.2" ocaml.version
     then import ../development/ocaml-modules/janestreet/0.15.nix {
       inherit self;
-      inherit (pkgs) fetchpatch lib openssl zstd;
+      inherit (pkgs) bash fetchpatch lib openssl zstd;
     }
     else if lib.versionOlder "4.08" ocaml.version
     then import ../development/ocaml-modules/janestreet/0.14.nix {

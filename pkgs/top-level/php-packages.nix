@@ -133,8 +133,7 @@ lib.makeScope pkgs.newScope (self: with self; {
       checkPhase = ''
         runHook preCheck
 
-        NO_INTERACTON=yes SKIP_PERF_SENSITIVE=yes make test
-
+        NO_INTERACTION=yes SKIP_PERF_SENSITIVE=yes make test
         runHook postCheck
       '';
 
@@ -408,6 +407,15 @@ lib.makeScope pkgs.newScope (self: with self; {
             valgrind.dev
           ];
           zendExtension = true;
+          postPatch = lib.optionalString stdenv.isDarwin ''
+            # Tests are flaky on darwin
+            rm ext/opcache/tests/blacklist.phpt
+            rm ext/opcache/tests/bug66338.phpt
+            rm ext/opcache/tests/bug78106.phpt
+            rm ext/opcache/tests/issue0115.phpt
+            rm ext/opcache/tests/issue0149.phpt
+            rm ext/opcache/tests/revalidate_path_01.phpt
+          '';
           # Tests launch the builtin webserver.
           __darwinAllowLocalNetworking = true;
         }
