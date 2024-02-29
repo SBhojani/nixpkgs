@@ -1,8 +1,9 @@
 # DO NOT EDIT! This file is generated automatically.
 # Command: ./maintainers/scripts/fetch-kde-qt.sh pkgs/desktops/plasma-5
-{ fetchurl, mirror }:
-
 {
+  fetchurl,
+  mirror,
+}: {
   aura-browser = {
     version = "5.27.10";
     src = fetchurl {
@@ -444,11 +445,11 @@
     };
   };
   powerdevil = {
-    version = "5.27.10";
-    src = fetchurl {
-      url = "${mirror}/stable/plasma/5.27.10/powerdevil-5.27.10.tar.xz";
-      sha256 = "1wf89sh8b7v6hhjkr8vf2q7qm3anv24n20n8wdh21pc0k30a7h86";
-      name = "powerdevil-5.27.10.tar.xz";
+    version = "5.27.10-with-the_zero_brightness_fix";
+    src = builtins.fetchGit {
+      url = "/home/shabbir/powerdevil";
+      ref = "the_zero_brightness_fix";
+      rev = "a6467fbad6e96d43ecb1aec11f7f263ddd368421";
     };
   };
   qqc2-breeze-style = {
