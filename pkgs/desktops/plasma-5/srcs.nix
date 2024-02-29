@@ -447,7 +447,7 @@
   powerdevil = {
     version = "5.27.10-with-the_zero_brightness_fix";
     src = builtins.fetchGit {
-      url = "/home/shabbir/powerdevil";
+      url = "https://github.com/SBhojani/powerdevil";
       ref = "the_zero_brightness_fix";
       rev = "a6467fbad6e96d43ecb1aec11f7f263ddd368421";
     };
