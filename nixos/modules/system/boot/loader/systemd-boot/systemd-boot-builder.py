@@ -190,7 +190,7 @@ def write_entry(profile: str | None, generation: int, specialisation: str | None
 
     kernel_params = kernel_params + " ".join(bootspec.kernelParams)
     build_time = int(os.path.getctime(system_dir(profile, generation, specialisation)))
-    build_date = datetime.datetime.fromtimestamp(build_time).strftime('%F')
+    build_time_for_desc = datetime.datetime.fromtimestamp(build_time).strftime('%F %r')
 
     with open(tmp_path, 'w') as f:
         f.write(BOOT_ENTRY.format(title=title,
@@ -199,7 +199,7 @@ def write_entry(profile: str | None, generation: int, specialisation: str | None
                     kernel=kernel,
                     initrd=initrd,
                     kernel_params=kernel_params,
-                    description=f"{bootspec.label}, built on {build_date}"))
+                    description=f"{bootspec.label}, built at {build_time_for_desc}"))
         if machine_id is not None:
             f.write("machine-id %s\n" % machine_id)
         if devicetree is not None:
