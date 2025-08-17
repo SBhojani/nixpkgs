@@ -1,14 +1,14 @@
 # Shims to mimic the shape of ../modules/generic/manifests/{feature,redistrib}/release.nix
 {
   package,
-  # redistSystem :: String
+  # redistArch :: String
   # String is `"unsupported"` if the given architecture is unsupported.
-  redistSystem,
+  redistArch,
 }:
 {
   featureRelease = {
     inherit (package) cudnnVersion minCudaVersion maxCudaVersion;
-    ${redistSystem}.outputs = {
+    ${redistArch}.outputs = {
       bin = true;
       lib = true;
       static = true;

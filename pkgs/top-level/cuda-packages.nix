@@ -22,15 +22,20 @@
 # I've (@connorbaker) attempted to do that, though I'm unsure of how this will interact with overrides.
 {
   config,
+  # <<<<<<< Conflict 1 of 6
+  # +++++++ Contents of side #1
   _cuda,
+  # %%%%%%% Changes from base to side #2
+  # -  cudaLib,
+  # >>>>>>> Conflict 1 of 6 ends
   cudaMajorMinorVersion,
   lib,
   pkgs,
   stdenv,
   runCommand,
-}:
-let
-  inherit (lib)
+}: let
+  inherit
+    (lib)
     attrsets
     customisation
     fixedPoints
@@ -38,35 +43,58 @@ let
     strings
     versions
     ;
+  # <<<<<<< Conflict 2 of 6
+  # %%%%%%% Changes from base to side #1
 
+  # -  # MUST be defined outside fix-point (cf. "NAMESET STRICTNESS" above)
+  # -  fixups = import ../development/cuda-modules/fixups { inherit lib; };
+  # +  cudaLib = _cuda.lib;
+  # +++++++ Contents of side #2
+  # MUST be defined outside fix-point (cf. "NAMESET STRICTNESS" above)
+  fixups = import ../development/cuda-modules/fixups {inherit lib;};
   cudaLib = _cuda.lib;
+  gpus = import ../development/cuda-modules/gpus.nix;
+  nvccCompatibilities = import ../development/cuda-modules/nvcc-compatibilities.nix;
+  flags = import ../development/cuda-modules/flags.nix {
+    inherit
+      config
+      cudaMajorMinorVersion
+      gpus
+      lib
+      stdenv
+      ;
+  };
+  # >>>>>>> Conflict 2 of 6 ends
 
+  # <<<<<<< Conflict 3 of 6
+  # +++++++ Contents of side #1
   # Since Jetson capabilities are never built by default, we can check if any of them were requested
   # through final.config.cudaCapabilities and use that to determine if we should change some manifest versions.
   # Copied from backendStdenv.
-  jetsonCudaCapabilities = lib.filter (
-    cudaCapability: _cuda.db.cudaCapabilityToInfo.${cudaCapability}.isJetson
-  ) _cuda.db.allSortedCudaCapabilities;
+  jetsonCudaCapabilities =
+    lib.filter (
+      cudaCapability: _cuda.db.cudaCapabilityToInfo.${cudaCapability}.isJetson
+    )
+    _cuda.db.allSortedCudaCapabilities;
   hasJetsonCudaCapability =
-    lib.intersectLists jetsonCudaCapabilities (config.cudaCapabilities or [ ]) != [ ];
+    lib.intersectLists jetsonCudaCapabilities (config.cudaCapabilities or []) != [];
   redistSystem = _cuda.lib.getRedistSystem hasJetsonCudaCapability stdenv.hostPlatform.system;
 
   # We must use an instance of Nixpkgs where the CUDA package set we're building is the default; if we do not, members
   # of the versioned, non-default package sets may rely on (transitively) members of the default, unversioned CUDA
   # package set.
   # See `Using cudaPackages.pkgs` in doc/languages-frameworks/cuda.section.md for more information.
-  pkgs' =
-    let
-      cudaPackagesUnversionedName = "cudaPackages";
-      cudaPackagesMajorVersionName = cudaLib.mkVersionedName cudaPackagesUnversionedName (
-        versions.major cudaMajorMinorVersion
-      );
-      cudaPackagesMajorMinorVersionName = cudaLib.mkVersionedName cudaPackagesUnversionedName cudaMajorMinorVersion;
-    in
+  pkgs' = let
+    cudaPackagesUnversionedName = "cudaPackages";
+    cudaPackagesMajorVersionName = cudaLib.mkVersionedName cudaPackagesUnversionedName (
+      versions.major cudaMajorMinorVersion
+    );
+    cudaPackagesMajorMinorVersionName = cudaLib.mkVersionedName cudaPackagesUnversionedName cudaMajorMinorVersion;
+  in
     # If the CUDA version of pkgs matches our CUDA version, we are constructing the default package set and can use
     # pkgs without modification.
-    if pkgs.cudaPackages.cudaMajorMinorVersion == cudaMajorMinorVersion then
-      pkgs
+    if pkgs.cudaPackages.cudaMajorMinorVersion == cudaMajorMinorVersion
+    then pkgs
     else
       pkgs.extend (
         final: _: {
@@ -79,21 +107,55 @@ let
           ${cudaPackagesUnversionedName} = final.${cudaPackagesMajorVersionName};
         }
       );
+  # %%%%%%% Changes from base to side #2
+  # -  # Since Jetson capabilities are never built by default, we can check if any of them were requested
+  # -  # through final.config.cudaCapabilities and use that to determine if we should change some manifest versions.
+  # -  # Copied from backendStdenv.
+  # -  jetsonCudaCapabilities = lib.filter (
+  # -    cudaCapability: cudaLib.data.cudaCapabilityToInfo.${cudaCapability}.isJetson
+  # -  ) cudaLib.data.allSortedCudaCapabilities;
+  # -  hasJetsonCudaCapability =
+  # -    lib.intersectLists jetsonCudaCapabilities (config.cudaCapabilities or [ ]) != [ ];
+  # -  redistSystem = cudaLib.utils.getRedistSystem hasJetsonCudaCapability stdenv.hostPlatform.system;
+  mkVersionedPackageName = name: version: name + "_" + strings.replaceStrings ["."] ["_"] (versions.majorMinor version);
+  # >>>>>>> Conflict 3 of 6 ends
 
   passthruFunction = final: {
-    # NOTE:
-    # It is important that _cuda is not part of the package set fixed-point. As described by
-    # @SomeoneSerge:
-    # > The layering should be: configuration -> (identifies/is part of) cudaPackages -> (is built using) cudaLib.
-    # > No arrows should point in the reverse directions.
-    # That is to say that cudaLib should only know about package sets and configurations, because it implements
-    # functionality for interpreting configurations, resolving them against data, and constructing package sets.
-    # This decision is driven both by a separation of concerns and by "NAMESET STRICTNESS" (see above).
-    # Also see the comment in `pkgs/top-level/all-packages.nix` about the `_cuda` attribute.
-
-    inherit cudaMajorMinorVersion;
-
-    pkgs = pkgs';
+    # <<<<<<< Conflict 4 of 6
+    # %%%%%%% Changes from base to side #1
+    #      # NOTE:
+    # -    # It is important that cudaLib (and fixups, which will be addressed later) are not part of the package set
+    # -    # fixed-point.
+    # -    # As described by @SomeoneSerge:
+    # +    # It is important that _cuda is not part of the package set fixed-point. As described by
+    # +    # @SomeoneSerge:
+    #      # > The layering should be: configuration -> (identifies/is part of) cudaPackages -> (is built using) cudaLib.
+    #      # > No arrows should point in the reverse directions.
+    #      # That is to say that cudaLib should only know about package sets and configurations, because it implements
+    #      # functionality for interpreting configurations, resolving them against data, and constructing package sets.
+    # -    inherit
+    # -      cudaMajorMinorVersion
+    # -      fixups
+    # -      lib
+    # -      pkgs
+    # -      ;
+    # +    # This decision is driven both by a separation of concerns and by "NAMESET STRICTNESS" (see above).
+    # +    # Also see the comment in `pkgs/top-level/all-packages.nix` about the `_cuda` attribute.
+    # +
+    # +    inherit cudaMajorMinorVersion;
+    # +
+    # +    pkgs = pkgs';
+    # +++++++ Contents of side #2
+    inherit
+      cudaMajorMinorVersion
+      fixups
+      flags
+      gpus
+      lib
+      nvccCompatibilities
+      pkgs
+      ;
+    # >>>>>>> Conflict 4 of 6 ends
 
     cudaNamePrefix = "cuda${cudaMajorMinorVersion}";
 
@@ -101,96 +163,138 @@ let
     cudaOlder = strings.versionOlder cudaMajorMinorVersion;
     cudaAtLeast = strings.versionAtLeast cudaMajorMinorVersion;
 
-    flags =
-      cudaLib.formatCapabilities {
-        inherit (final.backendStdenv) cudaCapabilities cudaForwardCompat;
-        inherit (_cuda.db) cudaCapabilityToInfo;
-      }
-      # TODO(@connorbaker): Enable the corresponding warnings in `../development/cuda-modules/aliases.nix` after some
-      # time to allow users to migrate to cudaLib and backendStdenv.
-      // {
-        inherit (cudaLib) dropDots;
-        cudaComputeCapabilityToName =
-          cudaCapability: _cuda.db.cudaCapabilityToInfo.${cudaCapability}.archName;
-        dropDot = cudaLib.dropDots;
-        isJetsonBuild = final.backendStdenv.hasJetsonCudaCapability;
-      };
+    # <<<<<<< Conflict 5 of 6
+    # +++++++ Contents of side #1
+    # flags =
+    #   cudaLib.formatCapabilities {
+    #     inherit (final.backendStdenv) cudaCapabilities cudaForwardCompat;
+    #     inherit (_cuda.db) cudaCapabilityToInfo;
+    #   }
+    #   # TODO(@connorbaker): Enable the corresponding warnings in `../development/cuda-modules/aliases.nix` after some
+    #   # time to allow users to migrate to cudaLib and backendStdenv.
+    #   // {
+    #     inherit (cudaLib) dropDots;
+    #     cudaComputeCapabilityToName = cudaCapability: _cuda.db.cudaCapabilityToInfo.${cudaCapability}.archName;
+    #     dropDot = cudaLib.dropDots;
+    #     isJetsonBuild = final.backendStdenv.hasJetsonCudaCapability;
+    #   };
 
+    # %%%%%%% Changes from base to side #2
+    # +    # NOTE: mkVersionedPackageName is an internal, implementation detail and should not be relied on by outside consumers.
+    # +    # It may be removed in the future.
+    # +    inherit mkVersionedPackageName;
+    # +
+    #      # Maintain a reference to the final cudaPackages.
+    #      # Without this, if we use `final.callPackage` and a package accepts `cudaPackages` as an
+    #      # argument, it's provided with `cudaPackages` from the top-level scope, which is not what we
+    #      # want. We want to provide the `cudaPackages` from the final scope -- that is, the *current*
+    #      # scope. However, we also want to prevent `pkgs/top-level/release-attrpaths-superset.nix` from
+    #      # recursing more than one level here.
+    #      cudaPackages = final // {
+    #        __attrsFailEvaluation = true;
+    #      };
+
+    # -    flags =
+    # -      cudaLib.utils.formatCapabilities {
+    # -        inherit (final.backendStdenv) cudaCapabilities cudaForwardCompat;
+    # -        inherit (cudaLib.data) cudaCapabilityToInfo;
+    # -      }
+    # -      # TODO(@connorbaker): Enable the corresponding warnings in `../development/cuda-modules/aliases.nix` after some
+    # -      # time to allow users to migrate to cudaLib and backendStdenv.
+    # -      // {
+    # -        inherit (cudaLib.utils) dropDots;
+    # -        cudaComputeCapabilityToName =
+    # -          cudaCapability: cudaLib.data.cudaCapabilityToInfo.${cudaCapability}.archName;
+    # -        dropDot = cudaLib.utils.dropDots;
+    # -        isJetsonBuild = final.backendStdenv.hasJetsonCudaCapability;
+    # -      };
+    # -
+    # >>>>>>> Conflict 5 of 6 ends
     # Loose packages
     # Barring packages which share a home (e.g., cudatoolkit and cudatoolkit-legacy-runfile), new packages
     # should be added to ../development/cuda-modules/packages in "by-name" style, where they will be automatically
     # discovered and added to the package set.
 
     # TODO: Move to aliases.nix once all Nixpkgs has migrated to the splayed CUDA packages
-    cudatoolkit = final.callPackage ../development/cuda-modules/cudatoolkit/redist-wrapper.nix { };
-    cudatoolkit-legacy-runfile = final.callPackage ../development/cuda-modules/cudatoolkit { };
+    cudatoolkit = final.callPackage ../development/cuda-modules/cudatoolkit/redist-wrapper.nix {};
+    cudatoolkit-legacy-runfile = final.callPackage ../development/cuda-modules/cudatoolkit {};
 
-    tests =
-      let
-        bools = [
-          true
-          false
-        ];
-        configs = {
-          openCVFirst = bools;
-          useOpenCVDefaultCuda = bools;
-          useTorchDefaultCuda = bools;
-        };
-        builder =
-          {
-            openCVFirst,
-            useOpenCVDefaultCuda,
-            useTorchDefaultCuda,
-          }@config:
-          {
-            name = strings.concatStringsSep "-" (
-              [
-                "test"
-                (if openCVFirst then "opencv" else "torch")
-              ]
-              ++ lists.optionals (if openCVFirst then useOpenCVDefaultCuda else useTorchDefaultCuda) [
-                "with-default-cuda"
-              ]
-              ++ [
-                "then"
-                (if openCVFirst then "torch" else "opencv")
-              ]
-              ++ lists.optionals (if openCVFirst then useTorchDefaultCuda else useOpenCVDefaultCuda) [
-                "with-default-cuda"
-              ]
-            );
-            value = final.callPackage ../development/cuda-modules/tests/opencv-and-torch config;
-          };
-      in
-      attrsets.listToAttrs (attrsets.mapCartesianProduct builder configs)
-      // {
-        flags = final.callPackage ../development/cuda-modules/tests/flags.nix { };
+    tests = let
+      bools = [
+        true
+        false
+      ];
+      configs = {
+        openCVFirst = bools;
+        useOpenCVDefaultCuda = bools;
+        useTorchDefaultCuda = bools;
       };
+      builder = {
+        openCVFirst,
+        useOpenCVDefaultCuda,
+        useTorchDefaultCuda,
+      } @ config: {
+        name = strings.concatStringsSep "-" (
+          [
+            "test"
+            (
+              if openCVFirst
+              then "opencv"
+              else "torch"
+            )
+          ]
+          ++ lists.optionals (
+            if openCVFirst
+            then useOpenCVDefaultCuda
+            else useTorchDefaultCuda
+          ) [
+            "with-default-cuda"
+          ]
+          ++ [
+            "then"
+            (
+              if openCVFirst
+              then "torch"
+              else "opencv"
+            )
+          ]
+          ++ lists.optionals (
+            if openCVFirst
+            then useTorchDefaultCuda
+            else useOpenCVDefaultCuda
+          ) [
+            "with-default-cuda"
+          ]
+        );
+        value = final.callPackage ../development/cuda-modules/tests/opencv-and-torch config;
+      };
+    in
+      attrsets.listToAttrs (attrsets.mapCartesianProduct builder configs);
   };
 
   composedExtension = fixedPoints.composeManyExtensions (
     [
       (
         final: _:
-        {
-          # Prevent missing attribute errors
-          # NOTE(@connorbaker): CUDA 12.3 does not have a cuda_compat package; indeed, none of the release supports
-          # Jetson devices. To avoid errors in the case that cuda_compat is not defined, we have a dummy package which
-          # is always defined, but does nothing, will not build successfully, and has no platforms.
-          cuda_compat = runCommand "cuda_compat" { meta.platforms = [ ]; } "false";
-        }
-        // lib.packagesFromDirectoryRecursive {
-          inherit (final) callPackage;
-          directory = ../development/cuda-modules/packages;
-        }
+          {
+            # Prevent missing attribute errors
+            # NOTE(@connorbaker): CUDA 12.3 does not have a cuda_compat package; indeed, none of the release supports
+            # Jetson devices. To avoid errors in the case that cuda_compat is not defined, we have a dummy package which
+            # is always defined, but does nothing, will not build successfully, and has no platforms.
+            cuda_compat = runCommand "cuda_compat" {meta.platforms = [];} "false";
+          }
+          // lib.packagesFromDirectoryRecursive {
+            inherit (final) callPackage;
+            directory = ../development/cuda-modules/packages;
+          }
       )
-      (import ../development/cuda-modules/cuda/extension.nix { inherit cudaMajorMinorVersion lib; })
+      (import ../development/cuda-modules/cuda/extension.nix {inherit cudaMajorMinorVersion lib;})
       (import ../development/cuda-modules/generic-builders/multiplex.nix {
         inherit
-          cudaLib
           cudaMajorMinorVersion
+          flags
           lib
-          redistSystem
+          mkVersionedPackageName
           stdenv
           ;
         pname = "cudnn";
@@ -200,25 +304,28 @@ let
       })
       (import ../development/cuda-modules/cutensor/extension.nix {
         inherit
-          cudaLib
           cudaMajorMinorVersion
+          flags
           lib
-          redistSystem
+          mkVersionedPackageName
+          stdenv
           ;
       })
       (import ../development/cuda-modules/cusparselt/extension.nix {
         inherit
-          cudaLib
+          cudaMajorMinorVersion
+          flags
           lib
-          redistSystem
+          mkVersionedPackageName
+          stdenv
           ;
       })
       (import ../development/cuda-modules/generic-builders/multiplex.nix {
         inherit
-          cudaLib
           cudaMajorMinorVersion
+          flags
           lib
-          redistSystem
+          mkVersionedPackageName
           stdenv
           ;
         pname = "tensorrt";
@@ -229,22 +336,27 @@ let
       (import ../development/cuda-modules/cuda-samples/extension.nix {
         inherit cudaMajorMinorVersion lib stdenv;
       })
-      (import ../development/cuda-modules/cuda-library-samples/extension.nix { inherit lib stdenv; })
+      (import ../development/cuda-modules/cuda-library-samples/extension.nix {inherit lib stdenv;})
     ]
-    ++ lib.optionals config.allowAliases [
-      (import ../development/cuda-modules/aliases.nix { inherit lib; })
-    ]
-    ++ _cuda.extensions
+    # <<<<<<< Conflict 6 of 6
+    # %%%%%%% Changes from base to side #1
+    #      ++ lib.optionals config.allowAliases [
+    #        (import ../development/cuda-modules/aliases.nix { inherit lib; })
+    #      ]
+    # +    ++ _cuda.extensions
+    # +++++++ Contents of side #2
+    ++ lib.optionals config.allowAliases [(import ../development/cuda-modules/aliases.nix)]
+    # >>>>>>> Conflict 6 of 6 ends
   );
 
   cudaPackages = customisation.makeScope pkgs'.newScope (
     fixedPoints.extends composedExtension passthruFunction
   );
 in
-# We want to warn users about the upcoming deprecation of old CUDA
-# versions, without breaking Nixpkgs CI with evaluation warnings. This
-# gross hack ensures that the warning only triggers if aliases are
-# enabled, which is true by default, but not for ofborg.
-lib.warnIf (cudaPackages.cudaOlder "12.0" && config.allowAliases)
+  # We want to warn users about the upcoming deprecation of old CUDA
+  # versions, without breaking Nixpkgs CI with evaluation warnings. This
+  # gross hack ensures that the warning only triggers if aliases are
+  # enabled, which is true by default, but not for ofborg.
+  lib.warnIf (cudaPackages.cudaOlder "12.0" && config.allowAliases)
   "CUDA versions older than 12.0 will be removed in Nixpkgs 25.05; see the 24.11 release notes for more information"
   cudaPackages

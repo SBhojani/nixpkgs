@@ -13,19 +13,22 @@
 # - Instead of providing different releases for each version of CUDA, CuTensor has multiple subdirectories in `lib`
 #   -- one for each version of CUDA.
 {
-  cudaLib,
   cudaMajorMinorVersion,
+  flags,
   lib,
-  redistSystem,
-}:
-let
-  inherit (lib)
+  mkVersionedPackageName,
+  stdenv,
+}: let
+  inherit
+    (lib)
     attrsets
     lists
     modules
     versions
     trivial
     ;
+
+  inherit (stdenv) hostPlatform;
 
   redistName = "cutensor";
   pname = "libcutensor";
@@ -45,30 +48,29 @@ let
   # Each release of cutensor gets mapped to an evaluated module for that release.
   # From there, we can get the min/max CUDA versions supported by that release.
   # listOfManifests :: List Manifests
-  listOfManifests =
-    let
-      configEvaluator =
-        fullCutensorVersion:
-        modules.evalModules {
-          modules = [
-            ../modules
-            # We need to nest the manifests in a config.cutensor.manifests attribute so the
-            # module system can evaluate them.
-            {
-              cutensor.manifests = {
-                redistrib = trivial.importJSON (./manifests + "/redistrib_${fullCutensorVersion}.json");
-                feature = trivial.importJSON (./manifests + "/feature_${fullCutensorVersion}.json");
-              };
-            }
-          ];
-        };
-      # Un-nest the manifests attribute set.
-      releaseGrabber = evaluatedModules: evaluatedModules.config.cutensor.manifests;
-    in
+  listOfManifests = let
+    configEvaluator = fullCutensorVersion:
+      modules.evalModules {
+        modules = [
+          ../modules
+          # We need to nest the manifests in a config.cutensor.manifests attribute so the
+          # module system can evaluate them.
+          {
+            cutensor.manifests = {
+              redistrib = trivial.importJSON (./manifests + "/redistrib_${fullCutensorVersion}.json");
+              feature = trivial.importJSON (./manifests + "/feature_${fullCutensorVersion}.json");
+            };
+          }
+        ];
+      };
+    # Un-nest the manifests attribute set.
+    releaseGrabber = evaluatedModules: evaluatedModules.config.cutensor.manifests;
+  in
     lists.map (trivial.flip trivial.pipe [
       configEvaluator
       releaseGrabber
-    ]) cutensorVersions;
+    ])
+    cutensorVersions;
 
   # Our cudaMajorMinorVersion tells us which version of CUDA we're building against.
   # The subdirectories in lib/ tell us which versions of CUDA are supported.
@@ -80,22 +82,31 @@ let
   # - 12
 
   # libPath :: String
-  libPath =
-    let
-      cudaMajorVersion = versions.major cudaMajorMinorVersion;
-    in
-    if cudaMajorMinorVersion == "10.2" then cudaMajorMinorVersion else cudaMajorVersion;
+  libPath = let
+    cudaMajorVersion = versions.major cudaMajorMinorVersion;
+  in
+    if cudaMajorMinorVersion == "10.2"
+    then cudaMajorMinorVersion
+    else cudaMajorVersion;
 
   # A release is supported if it has a libPath that matches our CUDA version for our platform.
   # LibPath are not constant across the same release -- one platform may support fewer
   # CUDA versions than another.
+  # redistArch :: String
+  redistArch = flags.getRedistArch hostPlatform.system;
   # platformIsSupported :: Manifests -> Boolean
-  platformIsSupported =
-    { feature, redistrib, ... }:
+  platformIsSupported = {
+    feature,
+    redistrib,
+    ...
+  }:
     (attrsets.attrByPath [
-      pname
-      redistSystem
-    ] null feature) != null;
+        pname
+        redistArch
+      ]
+      null
+      feature)
+    != null;
 
   # TODO(@connorbaker): With an auxiliary file keeping track of the CUDA versions each release supports,
   # we could filter out releases that don't support our CUDA version.
@@ -107,29 +118,34 @@ let
   # Compute versioned attribute name to be used in this package set
   # Patch version changes should not break the build, so we only use major and minor
   # computeName :: RedistribRelease -> String
-  computeName =
-    { version, ... }: cudaLib.mkVersionedName redistName (lib.versions.majorMinor version);
+  # <<<<<<< Conflict 1 of 1
+  # %%%%%%% Changes from base to side #1
+  #    computeName =
+  # -    { version, ... }: cudaLib.utils.mkVersionedName redistName (lib.versions.majorMinor version);
+  # +    { version, ... }: cudaLib.mkVersionedName redistName (lib.versions.majorMinor version);
+  # +++++++ Contents of side #2
+  computeName = {version, ...}: mkVersionedPackageName redistName version;
+  # >>>>>>> Conflict 1 of 1 ends
 in
-final: _:
-let
-  # buildCutensorPackage :: Manifests -> AttrSet Derivation
-  buildCutensorPackage =
-    { redistrib, feature }:
-    let
+  final: _: let
+    # buildCutensorPackage :: Manifests -> AttrSet Derivation
+    buildCutensorPackage = {
+      redistrib,
+      feature,
+    }: let
       drv = final.callPackage ../generic-builders/manifest.nix {
         inherit pname redistName libPath;
         redistribRelease = redistrib.${pname};
         featureRelease = feature.${pname};
       };
     in
-    attrsets.nameValuePair (computeName redistrib.${pname}) drv;
+      attrsets.nameValuePair (computeName redistrib.${pname}) drv;
 
-  extension =
-    let
+    extension = let
       nameOfNewest = computeName (lists.last supportedManifests).redistrib.${pname};
       drvs = builtins.listToAttrs (lists.map buildCutensorPackage supportedManifests);
-      containsDefault = attrsets.optionalAttrs (drvs != { }) { cutensor = drvs.${nameOfNewest}; };
+      containsDefault = attrsets.optionalAttrs (drvs != {}) {cutensor = drvs.${nameOfNewest};};
     in
-    drvs // containsDefault;
-in
-extension
+      drvs // containsDefault;
+  in
+    extension

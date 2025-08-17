@@ -8,6 +8,22 @@
 The files in this directory are added (in some way) to the `cudaPackages`
 package set by [cuda-packages.nix](../../top-level/cuda-packages.nix).
 
+<!-- <<<<<<< Conflict 1 of 1
++++++++ Contents of side #1
+%%%%%%% Changes from base to side #2
+ ## Top-level files
+ 
+ Top-level nix files are included in the initial creation of the `cudaPackages`
+ scope. These are typically required for the creation of the finalized
+ `cudaPackages` scope:
+ 
+ - `backend-stdenv.nix`: Standard environment for CUDA packages.
+ - `flags.nix`: Flags set, or consumed by, NVCC in order to build packages.
++- `gpus.nix`: A list of supported NVIDIA GPUs.
++- `nvcc-compatibilities.nix`: NVCC releases and the version range of GCC/Clang
++    they support.
+ 
+>>>>>>> Conflict 1 of 1 ends -->
 ## Top-level directories
 
 - `cuda`: CUDA redistributables! Provides extension to `cudaPackages` scope.

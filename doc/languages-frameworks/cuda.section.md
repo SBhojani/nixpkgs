@@ -348,6 +348,8 @@ All new projects should use the CUDA redistributables available in [`cudaPackage
    - Use `pkgs/development/cuda-modules/cutensor/manifests` instead of `pkgs/development/cuda-modules/cuda/manifests`.
    - Skip the step of updating `cudaVersionMap` in `pkgs/development/cuda-modules/cuda/extension.nix`.
 
+<!-- <<<<<<< Conflict 1 of 1
++++++++ Contents of side #1
 #### Updating supported compilers and GPUs {#cuda-updating-supported-compilers-and-gpus}
 
 1. Update `nvccCompatibilities` in `pkgs/development/cuda-modules/_cuda/data/nvcc.nix` to include the newest release of NVCC, as well as any newly supported host compilers.
@@ -360,6 +362,22 @@ While the CUDA Toolkit runfile installer is still available in Nixpkgs as the [`
 
 To ensure packages relying on the CUDA Toolkit runfile installer continue to build, it will continue to be updated until a migration path is available.
 :::
+%%%%%%% Changes from base to side #2
+ ### Updating supported compilers and GPUs {#updating-supported-compilers-and-gpus}
+ 
+-1. Update `nvccCompatibilities` in `pkgs/development/cuda-modules/lib/data/nvcc.nix` to include the newest release of NVCC, as well as any newly supported host compilers.
+-2. Update `cudaCapabilityToInfo` in `pkgs/development/cuda-modules/lib/data/cuda.nix` to include any new GPUs supported by the new release of CUDA.
++1. Update `nvcc-compatibilities.nix` in `pkgs/development/cuda-modules/` to include the newest release of NVCC, as well as any newly supported host compilers.
++2. Update `gpus.nix` in `pkgs/development/cuda-modules/` to include any new GPUs supported by the new release of CUDA.
+ 
+ ### Updating the CUDA Toolkit runfile installer {#updating-the-cuda-toolkit}
+ 
+ > **WARNING**
+ >
+ > While the CUDA Toolkit runfile installer is still available in Nixpkgs as the [`cudaPackages.cudatoolkit`](https://search.nixos.org/packages?channel=unstable&type=packages&query=cudaPackages.cudatoolkit) attribute, its use is not recommended and should it be considered deprecated. Please migrate to the CUDA redistributables provided by the [`cudaPackages`](https://search.nixos.org/packages?channel=unstable&type=packages&query=cudaPackages) package set.
+ >
+ > To ensure packages relying on the CUDA Toolkit runfile installer continue to build, it will continue to be updated until a migration path is available.
+>>>>>>> Conflict 1 of 1 ends -->
 
 1. Go to NVIDIA's CUDA Toolkit runfile installer download page: <https://developer.nvidia.com/cuda-downloads>
 2. Select the appropriate OS, architecture, distribution, and version, and installer type.
